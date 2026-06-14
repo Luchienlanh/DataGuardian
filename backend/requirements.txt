@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+pandas
+python-multipart
+httpx>=0.27
+sqlalchemy
+seaborn
+matplotlib

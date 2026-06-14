@@ -1,0 +1,7 @@
+.env
+backend/.env
+backend/.venv/
+backend/dataguard.db
+backend/storage/
+__pycache__/
+*.pyc

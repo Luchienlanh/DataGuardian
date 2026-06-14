@@ -1,0 +1,17 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: dataguard-backend
+    env_file:
+      - ./backend/.env
+    environment:
+      MPLBACKEND: Agg
+      PYTHONUNBUFFERED: "1"
+    ports:
+      - "8017:8017"
+    volumes:
+      - ./backend/dataguard.db:/app/dataguard.db
+      - ./backend/storage:/app/storage
+    restart: unless-stopped

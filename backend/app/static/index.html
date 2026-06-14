@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DataGuardian</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <a class="brand" href="#/home">
+          <span class="brand-mark">DG</span>
+          <span>
+            <strong>DataGuardian</strong>
+            <small>Data quality workspace</small>
+          </span>
+        </a>
+
+        <nav class="app-nav" aria-label="Main navigation">
+          <a class="nav-link active" href="#/home" data-route="home">Home</a>
+          <a class="nav-link" href="#/datasets" data-route="datasets">Datasets</a>
+          <a class="nav-link" href="#/eda" data-route="eda">Exploratory Data Analysis</a>
+          <a class="nav-link" href="#/cleaning" data-route="cleaning">Cleaning</a>
+          <a class="nav-link" href="#/ask" data-route="ask">Ask data</a>
+          <a class="nav-link" href="#/operations" data-route="operations">Operations</a>
+        </nav>
+
+        <div class="header-status">
+          <span class="status-dot"></span>
+          <span id="api-status">Checking connection...</span>
+        </div>
+
+        <div class="header-actions">
+          <a class="secondary-button" href="/docs" target="_blank" rel="noreferrer">API Docs</a>
+          <button class="primary-button" id="refresh-button" type="button">Refresh</button>
+        </div>
+      </header>
+
+      <main class="app-main">
+        <section class="route-view hidden" id="view-home" data-view="home">
+          <div class="home-hero">
+            <div class="hero-content">
+              <span class="hero-eyebrow">Enterprise Data Quality Suite</span>
+              <h1 class="hero-title">Intelligent Data Profiling & Agentic Analysis</h1>
+              <p class="hero-subtitle">
+                DataGuardian scans tabular datasets, checks business rules, runs detailed Exploratory Data Analysis (EDA), and uses AI agents to answer complex data questions instantly.
+              </p>
+              <div class="hero-actions">
+                <a href="#/datasets" class="primary-button hero-btn">Explore Datasets</a>
+                <a href="/docs" target="_blank" class="secondary-button hero-btn" rel="noreferrer">API Documentation</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-pillars">
+            <h2 class="section-heading">Platform Core Capabilities</h2>
+            <div class="pillars-grid">
+              <div class="pillar-card">
+                <div class="pillar-icon profile-icon">📊</div>
+                <h3>High-Fidelity Profiling</h3>
+                <p>Upload CSVs to scan schemas, calculate descriptive statistics, and check null distribution curves automatically.</p>
+              </div>
+              <div class="pillar-card">
+                <div class="pillar-icon rule-icon">🛡️</div>
+                <h3>Quality Assurance Engine</h3>
+                <p>Write declarative condition checks to intercept outliers, format violations, and structural schema changes.</p>
+              </div>
+              <div class="pillar-card">
+                <div class="pillar-icon eda-icon">📈</div>
+                <h3>Exploratory Data Analysis</h3>
+                <p>Examine correlations, missingness patterns, statistical quantiles, and value distributions dynamically.</p>
+              </div>
+              <div class="pillar-card">
+                <div class="pillar-icon agent-icon">🤖</div>
+                <h3>AI SQL Agent</h3>
+                <p>Ask natural language questions to query, aggregate, and inspect your tabular data using LLM reasoning.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="home-api-section">
+            <div class="api-intro">
+              <span class="eyebrow">Developer First</span>
+              <h2>Programmatic API Reference</h2>
+              <p>DataGuardian exposes high-performance REST endpoints. Select an endpoint below to inspect request parameters and returned response headers/fields.</p>
+              
+              <div class="api-switcher">
+                <button class="api-tab active" data-endpoint="upload">Upload & Profile</button>
+                <button class="api-tab" data-endpoint="eda">Get EDA Report</button>
+                <button class="api-tab" data-endpoint="agent">Ask LLM Agent</button>
+                <button class="api-tab" data-endpoint="rules">Manage Rules</button>
+              </div>
+            </div>
+
+            <div class="api-card">
+              <div class="api-card-header">
+                <span class="api-method POST">POST</span>
+                <span class="api-path" id="api-display-path">/datasets/upload</span>
+              </div>
+              <div class="api-card-body">
+                <div class="api-fields-section">
+                  <h4>Request Payload</h4>
+                  <div class="code-wrap">
+                    <pre class="json-code" id="api-request-code">Multipart Form-Data:
+- file: File (CSV data)</pre>
+                  </div>
+                </div>
+                <div class="api-fields-section" style="margin-top: 16px;">
+                  <h4>Response JSON Fields</h4>
+                  <div class="code-wrap">
+                    <pre class="json-code" id="api-response-code">{
+  "dataset_id": 1,
+  "quality_check_id": 1,
+  "file_info": {
+    "filename": "orders.csv",
+    "storage_path": "storage/uploads/x.csv",
+    "size": 1048576
+  },
+  "profile": {
+    "num_rows": 1000,
+    "num_columns": 5
+  },
+  "quality_issues": []
+}</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="route-view" id="view-datasets" data-view="datasets">
+          <section class="page-title">
+            <div>
+              <p class="eyebrow">Dataset registry</p>
+              <h1>Review uploaded datasets and quality runs</h1>
+            </div>
+            <span class="status-pill" id="run-status">Idle</span>
+          </section>
+
+          <div class="datasets-layout">
+            <aside class="left-rail" aria-label="Dataset controls">
+              <section class="panel upload-panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="eyebrow">Intake</p>
+                    <h2>Upload dataset</h2>
+                  </div>
+                </div>
+
+                <form class="upload-form" id="upload-form">
+                  <label class="file-drop" for="csv-file">
+                    <input id="csv-file" name="file" type="file" accept=".csv,text/csv" />
+                    <span class="file-title" id="file-title">Choose CSV file</span>
+                    <span class="file-hint" id="file-hint">No file selected</span>
+                  </label>
+                  <button class="primary-button full-width" type="submit" id="upload-button">Run check</button>
+                </form>
+              </section>
+
+              <section class="panel dataset-panel" id="datasets">
+                <div class="panel-header compact">
+                  <div>
+                    <p class="eyebrow">All datasets</p>
+                    <h2>Registry</h2>
+                  </div>
+                  <span class="pill" id="dataset-count">0 items</span>
+                </div>
+
+                <div class="table-wrap dataset-list">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Dataset</th>
+                        <th>Size</th>
+                        <th>Created</th>
+                      </tr>
+                    </thead>
+                    <tbody id="dataset-table"></tbody>
+                  </table>
+                </div>
+
+                <div class="empty-state hidden" id="dataset-empty">
+                  <strong>No datasets</strong>
+                  <span>Upload a CSV to start.</span>
+                </div>
+              </section>
+            </aside>
+
+            <section class="workspace">
+              <section class="selected-strip">
+                <div>
+                  <p class="eyebrow">Selected dataset</p>
+                  <h2 id="selected-title">No dataset selected</h2>
+                </div>
+              </section>
+
+              <section class="metrics-grid" aria-label="Quality metrics">
+                <article class="metric-card">
+                  <span>Total datasets</span>
+                  <strong id="metric-datasets">0</strong>
+                </article>
+                <article class="metric-card">
+                  <span>Latest rows</span>
+                  <strong id="metric-rows">0</strong>
+                </article>
+                <article class="metric-card">
+                  <span>Open issues</span>
+                  <strong id="metric-issues">0</strong>
+                </article>
+                <article class="metric-card critical">
+                  <span>High severity</span>
+                  <strong id="metric-high">0</strong>
+                </article>
+              </section>
+
+              <section class="main-grid">
+                <article class="panel run-panel">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">Profile</p>
+                      <h2>Column health</h2>
+                    </div>
+                  </div>
+
+                  <div class="profile-summary">
+                    <div>
+                      <span>Rows</span>
+                      <strong id="profile-rows">0</strong>
+                    </div>
+                    <div>
+                      <span>Columns</span>
+                      <strong id="profile-columns">0</strong>
+                    </div>
+                    <div>
+                      <span>Null-heavy</span>
+                      <strong id="profile-null-heavy">0</strong>
+                    </div>
+                  </div>
+
+                  <div class="column-health" id="column-health"></div>
+                </article>
+
+                <article class="panel summary-panel">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">Review</p>
+                      <h2>Run summary</h2>
+                    </div>
+                    <button class="secondary-button compact" id="briefing-button" type="button">Generate</button>
+                  </div>
+
+                  <div class="briefing" id="briefing">
+                    <strong>Ready for review</strong>
+                    <p>Select a dataset or upload a CSV.</p>
+                  </div>
+                </article>
+              </section>
+
+              <section class="panel issues-panel" id="issues">
+                <div class="panel-header">
+                  <div>
+                    <p class="eyebrow">Evidence</p>
+                    <h2>Quality issues</h2>
+                  </div>
+                  <select class="filter-select" id="severity-filter" aria-label="Filter severity">
+                    <option value="all">All severities</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+
+                <div class="issue-list" id="issue-list"></div>
+
+                <div class="empty-state hidden" id="issues-empty">
+                  <strong>No issues</strong>
+                  <span>The selected run is clean.</span>
+                </div>
+              </section>
+            </section>
+          </div>
+        </section>
+
+        <section class="route-view hidden" id="view-ask" data-view="ask">
+          <section class="page-title">
+            <div>
+              <p class="eyebrow">Natural language to SQL</p>
+              <h1>Ask questions about a dataset</h1>
+            </div>
+            <span class="status-pill">Read-only SQL</span>
+          </section>
+
+          <section class="ask-layout">
+            <article class="panel ask-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Agent input</p>
+                  <h2>Question</h2>
+                </div>
+              </div>
+
+              <form class="agent-form" id="agent-form">
+                <label class="field">
+                  <span>Dataset</span>
+                  <select id="agent-dataset-select"></select>
+                </label>
+
+                <label class="field">
+                  <span>Ask in natural language</span>
+                  <textarea
+                    id="agent-question"
+                    rows="5"
+                    placeholder="Example: Show duplicate order_id values"
+                  ></textarea>
+                </label>
+
+                <div class="example-grid">
+                  <button type="button" class="example-chip" data-question="How many rows are in this dataset?">Row count</button>
+                  <button type="button" class="example-chip" data-question="Show duplicate values in order_id">Duplicates</button>
+                  <button type="button" class="example-chip" data-question="Show rows where amount is negative">Negative amount</button>
+                  <button type="button" class="example-chip" data-question="What are the most common status values?">Top status</button>
+                </div>
+
+                <button class="primary-button full-width" type="submit" id="agent-submit">Translate and run</button>
+              </form>
+
+              <div class="manual-sql-block">
+                <div class="panel-header compact">
+                  <div>
+                    <p class="eyebrow">Manual SQL editor</p>
+                    <h2>Read-only query</h2>
+                  </div>
+                </div>
+                <label class="field">
+                  <span>SQL</span>
+                  <textarea id="manual-sql-input" rows="6">SELECT * FROM data LIMIT 10</textarea>
+                </label>
+                <button class="secondary-button full-width" id="manual-sql-submit" type="button">Run SQL</button>
+              </div>
+            </article>
+
+            <article class="panel sql-panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Generated SQL</p>
+                  <h2>Query plan</h2>
+                </div>
+                <span class="pill" id="agent-source">Idle</span>
+              </div>
+
+              <pre class="sql-box" id="agent-sql">SELECT * FROM data LIMIT 10</pre>
+              <div class="briefing compact-briefing" id="agent-explanation">
+                <strong>Agent guardrail</strong>
+                <p>Only read-only SELECT queries against the selected CSV table are allowed.</p>
+              </div>
+            </article>
+          </section>
+
+          <section class="panel results-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Result</p>
+                <h2>Query output</h2>
+              </div>
+              <span class="pill" id="agent-row-count">0 rows</span>
+            </div>
+
+            <div class="table-wrap result-table-wrap">
+              <table id="agent-result-table"></table>
+            </div>
+
+            <div class="empty-state" id="agent-result-empty">
+              <strong>No query results yet</strong>
+              <span>Choose a dataset, ask a question, and run the agent.</span>
+            </div>
+          </section>
+
+          <section class="panel results-panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">Query history</p>
+                <h2>Recent runs</h2>
+              </div>
+              <button class="secondary-button compact" id="query-history-refresh" type="button">Refresh</button>
+            </div>
+            <div class="history-list" id="query-history-list"></div>
+            <div class="empty-state hidden" id="query-history-empty">
+              <strong>No query history</strong>
+              <span>Agent and manual SQL runs will appear here.</span>
+            </div>
+          </section>
+        </section>
+
+        <section class="route-view hidden" id="view-eda" data-view="eda">
+          <section class="page-title">
+            <div>
+              <p class="eyebrow">Data Discovery</p>
+              <h1>Exploratory Data Analysis</h1>
+            </div>
+            <div class="field" style="min-width: 240px; margin-bottom: 0;">
+              <select id="eda-dataset-select" aria-label="Select Dataset for EDA"></select>
+            </div>
+          </section>
+
+          <div class="eda-layout">
+            <!-- Left Rail: Column Explorer Sidebar & Insights -->
+            <aside class="left-rail" aria-label="EDA Sidebar">
+              <section class="panel insights-panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="eyebrow">Automated Findings</p>
+                    <h2>Insights</h2>
+                  </div>
+                </div>
+                <div class="insight-list" id="eda-insights-list"></div>
+                <div class="empty-state hidden" id="eda-insights-empty">
+                  <strong>No major anomalies</strong>
+                  <span>Dataset looks standard and clean.</span>
+                </div>
+              </section>
+
+              <!-- Column Selector Registry -->
+              <section class="panel column-registry-panel">
+                <div class="panel-header compact">
+                  <div>
+                    <p class="eyebrow">Dataset Schema</p>
+                    <h2>Columns Registry</h2>
+                  </div>
+                </div>
+                <div class="field" style="margin-bottom: 12px;">
+                  <input type="text" id="eda-col-search" placeholder="Filter columns..." class="filter-select" style="width: 100%; min-height: 36px;" />
+                </div>
+                
+                <h3 class="eda-sub-title">Numerical Features</h3>
+                <div class="col-pill-list" id="eda-numeric-pills"></div>
+                
+                <h3 class="eda-sub-title" style="margin-top: 14px;">Categorical Features</h3>
+                <div class="col-pill-list" id="eda-categorical-pills"></div>
+              </section>
+            </aside>
+
+            <!-- Workspace: Selected Column Profile & Dataset Relationships -->
+            <section class="workspace">
+              <!-- Selected Column Analysis -->
+              <section class="panel selected-column-panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="eyebrow" id="eda-active-col-type">Active Profile</p>
+                    <h2 id="eda-active-col-name">No column selected</h2>
+                  </div>
+                  <span class="status-pill" id="eda-active-col-badge">Select a feature</span>
+                </div>
+
+                <div id="eda-active-col-profile">
+                  <div class="empty-state">
+                    <strong>Select a column</strong>
+                    <span>Choose a numerical or categorical feature from the registry.</span>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Global Dataset Relationships (Two-column Grid) -->
+              <div class="eda-relationships-grid">
+                <section class="panel correlations-panel">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">Statistical Association</p>
+                      <h2>Top Correlations</h2>
+                    </div>
+                  </div>
+                  
+                  <h3 class="eda-sub-title">Positive Correlations</h3>
+                  <div class="correlation-list" id="eda-pos-correlations"></div>
+                  
+                  <h3 class="eda-sub-title" style="margin-top: 16px;">Negative Correlations</h3>
+                  <div class="correlation-list" id="eda-neg-correlations"></div>
+                  
+                  <div class="empty-state hidden" id="eda-correlations-empty">
+                    <strong>No strong correlation</strong>
+                    <span>Need at least two numeric features.</span>
+                  </div>
+                </section>
+
+                <section class="panel missingness-panel">
+                  <div class="panel-header">
+                    <div>
+                      <p class="eyebrow">Data Completeness</p>
+                      <h2>Missingness Patterns</h2>
+                    </div>
+                  </div>
+                  <h3 class="eda-sub-title">Missing Rows Distribution</h3>
+                  <div class="missing-row-dist" id="eda-missing-rows"></div>
+                  
+                  <h3 class="eda-sub-title" style="margin-top: 16px;">Co-missing Column Pairs</h3>
+                  <div class="co-missing-list" id="eda-co-missing-columns"></div>
+                  
+                  <div class="empty-state hidden" id="eda-missingness-empty">
+                    <strong>Complete dataset</strong>
+                    <span>No missing values detected.</span>
+                  </div>
+                </section>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="route-view hidden" id="view-cleaning" data-view="cleaning">
+          <section class="page-title">
+            <div>
+              <p class="eyebrow">Dataset remediation</p>
+              <h1>Preview, apply, and download clean datasets</h1>
+            </div>
+            <div class="field" style="min-width: 240px; margin-bottom: 0;">
+              <select id="cleaning-dataset-select" aria-label="Select Dataset for Cleaning"></select>
+            </div>
+          </section>
+
+          <section class="cleaning-layout">
+            <aside class="left-rail" aria-label="Cleaning controls">
+              <section class="panel cleaning-suggestions-panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="eyebrow">Recommended actions</p>
+                    <h2>Cleaning steps</h2>
+                  </div>
+                  <button class="secondary-button compact" id="cleaning-refresh-button" type="button">Refresh</button>
+                </div>
+
+                <div class="cleaning-step-list" id="cleaning-suggestion-list"></div>
+                <div class="empty-state hidden" id="cleaning-suggestions-empty">
+                  <strong>No suggestions</strong>
+                  <span>No basic cleaning action is needed for the selected dataset.</span>
+                </div>
+
+                <div class="cleaning-actions">
+                  <button class="secondary-button full-width" id="cleaning-ai-button" type="button">LLM suggestions</button>
+                  <button class="secondary-button full-width" id="cleaning-preview-button" type="button">Preview</button>
+                  <button class="primary-button full-width" id="cleaning-apply-button" type="button">Apply and save</button>
+                  <button class="secondary-button full-width hidden" id="cleaning-open-dataset" type="button">Open cleaned dataset</button>
+                  <a class="secondary-button full-width hidden" id="cleaning-download" href="#">Download cleaned CSV</a>
+                </div>
+              </section>
+
+              <section class="panel cleaning-runs-panel">
+                <div class="panel-header compact">
+                  <div>
+                    <p class="eyebrow">Audit trail</p>
+                    <h2>Cleaning runs</h2>
+                  </div>
+                </div>
+                <div class="cleaning-run-list" id="cleaning-run-list"></div>
+                <div class="empty-state hidden" id="cleaning-runs-empty">
+                  <strong>No cleaning runs</strong>
+                  <span>Applied cleaning runs will appear here.</span>
+                </div>
+              </section>
+            </aside>
+
+            <section class="workspace">
+              <section class="panel cleaning-preview-panel">
+                <div class="panel-header">
+                  <div>
+                    <p class="eyebrow">Preview</p>
+                    <h2>Before and after impact</h2>
+                  </div>
+                </div>
+
+                <div id="cleaning-preview-summary">
+                  <div class="empty-state">
+                    <strong>No preview yet</strong>
+                    <span>Select cleaning steps and preview the result.</span>
+                  </div>
+                </div>
+
+                <div class="cleaning-step-details" id="cleaning-step-details"></div>
+              </section>
+
+              <section class="cleaning-sample-grid">
+                <article class="panel">
+                  <div class="panel-header compact">
+                    <div>
+                      <p class="eyebrow">Raw sample</p>
+                      <h2>Before</h2>
+                    </div>
+                  </div>
+                  <div class="table-wrap result-table-wrap" id="cleaning-before-table"></div>
+                </article>
+
+                <article class="panel">
+                  <div class="panel-header compact">
+                    <div>
+                      <p class="eyebrow">Cleaned sample</p>
+                      <h2>After</h2>
+                    </div>
+                  </div>
+                  <div class="table-wrap result-table-wrap" id="cleaning-after-table"></div>
+                </article>
+              </section>
+            </section>
+          </section>
+        </section>
+
+        <section class="route-view hidden" id="view-operations" data-view="operations">
+          <section class="page-title">
+            <div>
+              <p class="eyebrow">Production operations</p>
+              <h1>Rules, reports, jobs, workspace, and observability</h1>
+            </div>
+            <span class="status-pill">MVP controls</span>
+          </section>
+
+          <section class="operations-grid">
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Auth / Workspace</p>
+                  <h2>Current context</h2>
+                </div>
+                <button class="secondary-button compact" id="workspace-refresh" type="button">Refresh</button>
+              </div>
+              <div class="ops-summary" id="workspace-summary"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Natural language rule builder</p>
+                  <h2>Create data rule</h2>
+                </div>
+              </div>
+              <label class="field">
+                <span>Dataset</span>
+                <select id="rule-builder-dataset"></select>
+              </label>
+              <label class="field">
+                <span>Instruction</span>
+                <textarea id="rule-builder-input" rows="4" placeholder="Example: Discount must be between 0 and 0.5, severity high"></textarea>
+              </label>
+              <div class="split-actions">
+                <button class="secondary-button" id="rule-builder-preview" type="button">Preview rule</button>
+                <button class="primary-button" id="rule-builder-create" type="button">Create rule</button>
+              </div>
+              <div class="ops-output" id="rule-builder-output"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Report export</p>
+                  <h2>Dataset report</h2>
+                </div>
+                <button class="secondary-button compact" id="reports-refresh" type="button">Refresh</button>
+              </div>
+              <label class="field">
+                <span>Dataset</span>
+                <select id="report-dataset"></select>
+              </label>
+              <button class="primary-button full-width" id="report-export-button" type="button">Export HTML report</button>
+              <div class="history-list" id="reports-list"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Background jobs</p>
+                  <h2>Job monitor</h2>
+                </div>
+                <button class="secondary-button compact" id="jobs-refresh" type="button">Refresh</button>
+              </div>
+              <div class="history-list" id="jobs-list"></div>
+            </article>
+
+            <article class="panel ops-wide">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow">Better error observability</p>
+                  <h2>Application events</h2>
+                </div>
+                <button class="secondary-button compact" id="events-refresh" type="button">Refresh</button>
+              </div>
+              <div class="history-list" id="events-list"></div>
+            </article>
+          </section>
+        </section>
+      </main>
+
+      <div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
